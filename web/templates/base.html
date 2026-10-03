@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi tienda{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="h-16 flex items-center justify-between">
+                <a href="{{ url_for('index') }}" class="text-2xl font-bold">MiTienda</a>
+                <a href="{{ url_for('carrito') }}" class="hover:text-yellow-400">
+                    🛒 Carrito
+                    {% if cantidad_carrito > 0 %}
+                    <span class="bg-yellow-400 text-black px-2 py-1 rounded-full text-xs">{{ cantidad_carrito }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-900 text-gray-400 mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8 text-center">© 2026 MiTienda</div>
+    </footer>
+</body>
+
+</html>

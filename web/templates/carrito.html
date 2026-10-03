@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Carrito - MiTienda{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-8">Mi carrito</h1>
+{% if productos %}
+<div class="grid lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-4">
+        {% for item in productos %}
+        <article class="bg-white rounded-lg shadow p-5 flex gap-5">
+            <img src="{{ item.producto.imagen }}" alt="{{ item.producto.nombre }}"
+                class="w-32 h-32 object-cover rounded-lg">
+            <div class="flex-1">
+                <h2 class="text-xl font-semibold">{{ item.producto.nombre }}</h2>
+                <p class="text-gray-500 mt-2">Cantidad: {{ item.cantidad }}</p>
+                <p class="font-bold text-lg mt-3">${{ "%.2f"|format(item.subtotal) }}</p>
+                <a href="{{ url_for('eliminar_carrito', id=item.producto.id) }}"
+                    class="text-red-600 text-sm hover:underline">Eliminar</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    <aside class="bg-white rounded-lg shadow p-6 h-fit">
+        <h2 class="text-xl font-bold mb-6">Resumen</h2>
+        <div class="flex justify-between mb-3"><span>Productos</span><span>${{ "%.2f"|format(total) }}</span></div>
+        <div class="flex justify-between mb-4"><span>Envío</span><span>Gratis</span></div>
+        <hr class="mb-4">
+        <div class="flex justify-between text-xl font-bold mb-6"><span>Total</span><span>${{ "%.2f"|format(total)
+                }}</span></div>
+        <button type="button"
+            class="w-full bg-yellow-400 hover:bg-yellow-500 py-3 rounded-lg font-bold">Comprar</button>
+    </aside>
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow p-12 text-center">
+    <div class="text-6xl mb-5">🛒</div>
+    <h2 class="text-2xl font-bold mb-3">Tu carrito está vacío</h2>
+    <p class="text-gray-500 mb-6">Agrega algunos productos para comenzar.</p>
+    <a href="{{ url_for('index') }}"
+        class="inline-block bg-yellow-400 hover:bg-yellow-500 px-6 py-3 rounded-lg font-bold">Ver productos</a>
+</div>
+{% endif %}
+{% endblock %}
