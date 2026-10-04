@@ -9,7 +9,9 @@ from renderer import Renderer
 def main() -> None:
     pygame.init()
 
-    screen = pygame.display.set_mode((SETTINGS.WIDTH, SETTINGS.HEIGHT))
+    screen = pygame.display.set_mode(
+        (SETTINGS.WIDTH, SETTINGS.HEIGHT + SETTINGS.HUD_HEIGHT)
+    )
     pygame.display.set_caption(SETTINGS.TITLE)
 
     clock = pygame.time.Clock()

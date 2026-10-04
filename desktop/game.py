@@ -1,6 +1,26 @@
+import random
+from dataclasses import dataclass
+
 from config import SETTINGS
 from food import Food
 from snake import Snake
+
+
+@dataclass
+class Meteor:
+    x: float
+    y: float
+    speed: float
+
+    def hits(self, body, previous_y=None) -> bool:
+        # Barre toda la caída para no atravesar la serpiente entre fotogramas.
+        top = self.y if previous_y is None else previous_y
+        for x, y in body:
+            dx = max(x - self.x, 0, self.x - (x + 1))
+            dy = max(y - self.y, 0, top - (y + 1))
+            if dx * dx + dy * dy < SETTINGS.METEOR_RADIUS ** 2:
+                return True
+        return False
 
 
 class Game:
@@ -37,10 +57,36 @@ class Game:
         self.score = 0
         self.move_timer = 0.0
         self.move_interval = SETTINGS.INITIAL_SPEED
+        self.meteors = []
+        self.meteor_timer = 0.0
+        self.elapsed = 0.0
+        self.over_reason = ""
 
     def update(self, delta_time: float) -> None:
         if self.game_over:
             return
+
+        self.elapsed += delta_time
+        for meteor in self.meteors:
+            previous_y = meteor.y
+            meteor.y += meteor.speed * delta_time
+            if meteor.hits(self.snake.body, previous_y):
+                self.game_over = True
+                self.over_reason = "Te alcanzó un meteorito"
+                return
+
+        self.meteors = [
+            meteor for meteor in self.meteors
+            if meteor.y - SETTINGS.METEOR_RADIUS < self.rows
+        ]
+        self.meteor_timer += delta_time
+        if self.meteor_timer >= SETTINGS.METEOR_INTERVAL:
+            self.meteor_timer %= SETTINGS.METEOR_INTERVAL
+            self.meteors.append(Meteor(
+                x=random.uniform(0.5, self.columns - 0.5),
+                y=-SETTINGS.METEOR_RADIUS,
+                speed=random.uniform(*SETTINGS.METEOR_SPEED),
+            ))
 
         self.move_timer += delta_time
 
@@ -62,16 +108,23 @@ class Game:
             or next_head[1] >= self.rows
         ):
             self.game_over = True
+            self.over_reason = "Saliste de la órbita"
             return
 
         # Colisión consigo misma
         if next_head in self.snake.body[:-1]:
             self.game_over = True
+            self.over_reason = "Chocaste con tu serpiente"
             return
 
         ate_food = next_head == self.food.position
 
         self.snake.move(grow=ate_food)
+
+        if any(meteor.hits(self.snake.body) for meteor in self.meteors):
+            self.game_over = True
+            self.over_reason = "Te alcanzó un meteorito"
+            return
 
         if ate_food:
             self.score += 1
